@@ -33,7 +33,7 @@ jobs:
         with:
           context: ./app
           push: true
-          tags: index.docker.io/${{ secrets.DockerHubUsername }}/${{ vars.WebAppImageName }}:develop
+          tags: index.docker.io/${{ secrets.DockerHubUsername }}/${{ vars.WebAppImageName }}:develop, index.docker.io/${{ secrets.DockerHubUsername }}/${{ vars.WebAppImageName }}:${{ github.sha }}
           file: ./app/Dockerfile
           build-args: flaskEnv=${{ env.flaskEnv }}
 
