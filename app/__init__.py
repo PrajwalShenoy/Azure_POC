@@ -8,6 +8,6 @@ def create_app(test_config=None):
 
     @app.route('/')
     def hello():
-        return f"Hello, World! This is running {os.getenv('flaskEnv')} branch"
+        return f"Hello, Hologic! This is running {os.getenv('flaskEnv')} branch"
 
     return app
