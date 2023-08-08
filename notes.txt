@@ -1,0 +1,4 @@
+$flaskEnv = "dev"
+
+docker build --build-arg flaskEnv=$flaskEnv . -t poc:latest
+

@@ -1,0 +1,87 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy container app to Azure Web App - Flask-test-poc
+
+on:
+  push:
+    branches: [develop, 'feature/**']
+  workflow_dispatch:
+
+env:
+  flaskEnv: ${{ github.ref_name }}
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to container registry
+        uses: docker/login-action@v2
+        with:
+          registry: https://index.docker.io/v1/
+          username: ${{ secrets.DockerHubUsername }}
+          password: ${{ secrets.DockerHubPassword }}
+
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v3
+        with:
+          context: ./app
+          push: true
+          tags: index.docker.io/${{ secrets.DockerHubUsername }}/${{ vars.WebAppImageName }}:develop
+          file: ./app/Dockerfile
+          build-args: flaskEnv=$flaskEnv
+
+  # terraform_deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build_and_push
+    
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Setup Terraform
+  #       uses: hashicorp/setup-terraform@v1
+  #       with:
+  #         terraform_version: 1.5.4
+
+  #     - name: Login via Azure CLI
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  #     - name: Terraform Init
+  #       id: init
+  #       env:
+  #         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  #         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  #         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  #         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  #         RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+  #         STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
+  #         CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
+  #       run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+
+
+
+
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build_and_push
+  #   environment:
+  #     name: 'dev'
+  #     url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+  #   steps:
+  #     - name: Deploy to Azure Web App
+  #       id: deploy-to-webapp
+  #       uses: azure/webapps-deploy@v2
+  #       with:
+  #         app-name: 'Flask-test-poc'
+  #         slot-name: 'dev'
+  #         publish-profile: ${{ secrets.AzureAppService_PublishProfile }}
+  #         images: 'index.docker.io/${{ secrets.DockerHubUsername }}/${{ vars.WebAppImageName }}:develop'
