@@ -35,7 +35,7 @@ jobs:
           push: true
           tags: index.docker.io/${{ secrets.DockerHubUsername }}/${{ vars.WebAppImageName }}:develop
           file: ./app/Dockerfile
-          build-args: flaskEnv=$flaskEnv
+          build-args: flaskEnv=${{ env.flaskEnv }}
 
   # terraform_deploy:
   #   runs-on: ubuntu-latest
